@@ -1,0 +1,112 @@
+import React, { useState, useEffect, useCallback } from 'react';
+import { FaUserTie, FaSearch, FaSpinner, FaEye } from 'react-icons/fa';
+import { useNavigate } from 'react-router-dom';
+import api from '../api';
+
+const BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
+const StaffPanelData = () => {
+  const [data, setData] = useState([]);
+  const [stats, setStats] = useState({});
+  const [loading, setLoading] = useState(true);
+  const [search, setSearch] = useState('');
+  const navigate = useNavigate();
+
+  const fetchData = useCallback(async () => {
+    setLoading(true);
+    try {
+      const res = await api.get(`/api/school-admin/staff?search=${search}`);
+      setData(res.data.data || []);
+      setStats(res.data.stats || {});
+    } catch (err) {
+      console.error('Staff error:', err.response?.data || err.message);
+    } finally {
+      setLoading(false);
+    }
+  }, [search]);
+
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
+
+  return (
+    <div className="space-y-6">
+      <div className="flex items-center gap-3">
+        <FaUserTie className="text-3xl text-blue-600" />
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900">Staff Management</h1>
+          <p className="text-gray-500 text-sm">Complete staff directory</p>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        {[
+          { label: 'Total Staff', value: stats.total || 0 },
+          { label: 'Active', value: stats.active || 0 },
+          { label: 'On Leave', value: stats.onLeave || 0 },
+          { label: 'Departments', value: stats.departments || 0 },
+        ].map((s, i) => (
+          <div key={i} className="bg-white p-4 rounded-xl border border-gray-200 shadow-sm">
+            <p className="text-gray-500 text-sm">{s.label}</p>
+            <p className="text-2xl font-bold text-gray-800 mt-1">{s.value}</p>
+          </div>
+        ))}
+      </div>
+
+      <div className="relative">
+        <FaSearch className="absolute left-3 top-3 text-gray-400" />
+        <input type="text" placeholder="Search by name or email..."
+          value={search} onChange={e => setSearch(e.target.value)}
+          className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 text-sm" />
+      </div>
+
+      <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+        {loading ? (
+          <div className="flex items-center justify-center h-40"><FaSpinner className="animate-spin text-blue-500 text-3xl" /></div>
+        ) : data.length === 0 ? (
+          <p className="text-center text-gray-400 py-12">No staff members found</p>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead className="bg-gray-50 border-b">
+                <tr>{['Profile', 'Name', 'Email', 'Mobile', 'Qualification', 'Experience', 'Salary', 'Branch', 'Status', 'Action'].map(h => (
+                  <th key={h} className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">{h}</th>
+                ))}</tr>
+              </thead>
+              <tbody>
+                {data.map(s => (
+                  <tr key={s._id} className="border-b hover:bg-gray-50">
+                    <td className="px-4 py-3">
+                      <div className="w-9 h-9 rounded-full overflow-hidden bg-blue-100 flex-shrink-0">
+                        {s.profileImage ? <img src={`${BASE_URL}${s.profileImage}`} alt={s.name} className="w-full h-full object-cover" /> : <div className="w-full h-full flex items-center justify-center text-blue-600 font-bold text-sm">{s.name?.[0]}</div>}
+                      </div>
+                    </td>
+                    <td className="px-4 py-3 text-sm font-medium text-gray-900">{s.name}</td>
+                    <td className="px-4 py-3 text-sm text-gray-600">{s.email}</td>
+                    <td className="px-4 py-3 text-sm text-gray-600">{s.mobile || '—'}</td>
+                    <td className="px-4 py-3 text-sm text-gray-600">{s.qualification || '—'}</td>
+                    <td className="px-4 py-3 text-sm text-gray-600">{s.experience || '—'}</td>
+                    <td className="px-4 py-3 text-sm text-gray-600">{s.salary ? `₹${Number(s.salary).toLocaleString()}` : '—'}</td>
+                    <td className="px-4 py-3 text-sm text-gray-600">{s.branch?.branchName || '—'}</td>
+                    <td className="px-4 py-3">
+                      <span className={`px-2 py-1 rounded-full text-xs font-semibold ${s.status ? 'bg-green-100 text-green-700' : 'bg-orange-100 text-orange-700'}`}>
+                        {s.status ? 'Active' : 'Inactive'}
+                      </span>
+                    </td>
+                    <td className="px-4 py-3">
+                      <button onClick={() => navigate(`/dashbord/staff-profile/${s._id}`)} className="p-2 bg-emerald-100 text-emerald-600 rounded-lg hover:bg-emerald-200 transition">
+                        <FaEye />
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
+export default StaffPanelData;
