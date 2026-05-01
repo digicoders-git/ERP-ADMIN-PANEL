@@ -1,8 +1,10 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { FaMoneyBillWave, FaSearch, FaSpinner } from 'react-icons/fa';
+import { useOutletContext } from 'react-router-dom';
 import api from '../api';
 
 const FeePanelData = () => {
+  const { selectedBranch } = useOutletContext() || {};
   const [data, setData] = useState([]);
   const [stats, setStats] = useState({});
   const [loading, setLoading] = useState(true);
@@ -11,7 +13,8 @@ const FeePanelData = () => {
   const fetchData = useCallback(async () => {
     setLoading(true);
     try {
-      const res = await api.get(`/api/school-admin/fees?search=${search}`);
+      const branchParam = selectedBranch && selectedBranch !== 'all' ? `&branchId=${selectedBranch}` : '';
+      const res = await api.get(`/api/school-admin/fees?search=${search}${branchParam}`);
       setData(res.data.data || []);
       setStats(res.data.stats || {});
     } catch (err) {
@@ -19,7 +22,7 @@ const FeePanelData = () => {
     } finally {
       setLoading(false);
     }
-  }, [search]);
+  }, [search, selectedBranch]);
 
   useEffect(() => {
     fetchData();
@@ -76,7 +79,7 @@ const FeePanelData = () => {
                     <td className="px-4 py-3 text-sm text-gray-600 capitalize">{f.feeType}</td>
                     <td className="px-4 py-3 text-sm text-gray-600 capitalize">{f.frequency}</td>
                     <td className="px-4 py-3 text-sm font-semibold text-gray-800">₹{(f.totalAmount || 0).toLocaleString()}</td>
-                    <td className="px-4 py-3 text-sm text-gray-600">{f.branch}</td>
+                    <td className="px-4 py-3 text-sm text-gray-600">{f.branch?.branchName || f.branch}</td>
                     <td className="px-4 py-3">
                       <span className={`px-2 py-1 rounded-full text-xs font-semibold ${f.status === 'Active' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
                         {f.status}

@@ -99,7 +99,7 @@ export const TransportPanelData = () => {
             v.vehicleType,
             v.capacity,
             v.route,
-            v.branch,
+            v.branch?.branchName || v.branch,
             <Badge key="s" val={v.status} green={v.status === 'Active'} red={v.status === 'Inactive'} />,
           ]}
           empty="No vehicles found"
@@ -200,7 +200,7 @@ export const LibrarianPanelData = () => {
         <DataTable
           cols={['Staff ID', 'Name', 'Email', 'Phone', 'Qualification', 'Branch', 'Join Date', 'Status']}
           rows={data}
-          render={l => [l.staffId, l.name, l.email, l.phone, l.qualification, l.branch, l.joinDate, <Badge key="s" val={l.status} green={l.status === 'Active'} red={l.status === 'Inactive'} />]}
+          render={l => [l.staffId, l.name, l.email, l.phone, l.qualification, l.branch?.branchName || l.branch, l.joinDate, <Badge key="s" val={l.status} green={l.status === 'Active'} red={l.status === 'Inactive'} />]}
           empty="No librarians found"
         />
       )}

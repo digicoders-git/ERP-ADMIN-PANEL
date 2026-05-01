@@ -11,8 +11,15 @@ import StaffPanelData from "./Dashbord.jsx/StaffPanelData";
 import TeacherPanelData from "./Dashbord.jsx/TeacherPanelData";
 import FeePanelData from "./Dashbord.jsx/FeePanelData";
 import StaffProfile from "./Dashbord.jsx/StaffProfile";
+import SchoolSettings from "./Dashbord.jsx/SchoolSettings";
+import TransportPanelData from "./Dashbord.jsx/TransportPanelData";
+import LibraryPanelData from "./Dashbord.jsx/LibraryPanelData";
+import LibrarianPanelData from "./Dashbord.jsx/LibrarianPanelData";
+import HostelPanelData from "./Dashbord.jsx/HostelPanelData";
+import ParentPanelData from "./Dashbord.jsx/ParentPanelData";
 import AdminProfile from "./Dashbord.jsx/AdminProfile";
-import { TransportPanelData, LibraryPanelData, HostelPanelData, ParentPanelData, LibrarianPanelData } from "./Dashbord.jsx/AllPanelsData";
+import IDCardGeneration from "./Dashbord.jsx/IDCardGeneration";
+import ExamSchedule from "./Dashbord.jsx/ExamSchedule";
 
 // Guard: redirect to dashboard if panel not in allowedPanels
 function PanelRoute({ panel, element }) {
@@ -29,6 +36,10 @@ export default function App() {
 
         <Route path="/dashbord" element={<MainDashBord />}>
           <Route index element={<AdminDashboard />} />
+
+          {/* school settings */}
+          <Route path="school-settings" element={<SchoolSettings />} />
+          <Route path="school-settings/:section" element={<SchoolSettings />} />
 
           {/* school panel */}
           <Route path="branches" element={<PanelRoute panel="school" element={<BranchManagement />} />} />
@@ -57,6 +68,12 @@ export default function App() {
 
           {/* parent/student panel */}
           <Route path="parents" element={<PanelRoute panel="parent" element={<ParentPanelData />} />} />
+
+          {/* exam schedule */}
+          <Route path="exam-schedule" element={<ExamSchedule />} />
+
+          {/* ID Card Generation */}
+          <Route path="generate-id-cards" element={<PanelRoute panel="parent" element={<IDCardGeneration />} />} />
 
           {/* always accessible */}
           <Route path="reports" element={<Reports />} />

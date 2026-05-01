@@ -1,21 +1,25 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { FaUserTie, FaSearch, FaSpinner, FaEye } from 'react-icons/fa';
-import { useNavigate } from 'react-router-dom';
+import { FaUserTie, FaSearch, FaSpinner, FaEye, FaIdCard } from 'react-icons/fa';
+import { useNavigate, useOutletContext } from 'react-router-dom';
 import api from '../api';
+import IDCardPrint from './IDCardPrint';
 
 const BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 const StaffPanelData = () => {
+  const { selectedBranch } = useOutletContext() || {};
   const [data, setData] = useState([]);
   const [stats, setStats] = useState({});
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
+  const [selectedStaff, setSelectedStaff] = useState(null);
   const navigate = useNavigate();
 
   const fetchData = useCallback(async () => {
     setLoading(true);
     try {
-      const res = await api.get(`/api/school-admin/staff?search=${search}`);
+      const branchParam = selectedBranch && selectedBranch !== 'all' ? `&branchId=${selectedBranch}` : '';
+      const res = await api.get(`/api/school-admin/staff?search=${search}${branchParam}`);
       setData(res.data.data || []);
       setStats(res.data.stats || {});
     } catch (err) {
@@ -23,7 +27,7 @@ const StaffPanelData = () => {
     } finally {
       setLoading(false);
     }
-  }, [search]);
+  }, [search, selectedBranch]);
 
   useEffect(() => {
     fetchData();
@@ -94,9 +98,14 @@ const StaffPanelData = () => {
                       </span>
                     </td>
                     <td className="px-4 py-3">
-                      <button onClick={() => navigate(`/dashbord/staff-profile/${s._id}`)} className="p-2 bg-emerald-100 text-emerald-600 rounded-lg hover:bg-emerald-200 transition">
-                        <FaEye />
-                      </button>
+                      <div className="flex gap-2">
+                        <button onClick={() => navigate(`/dashbord/staff-profile/${s._id}`)} className="p-2 bg-emerald-100 text-emerald-600 rounded-lg hover:bg-emerald-200 transition" title="View Profile">
+                          <FaEye />
+                        </button>
+                        <button onClick={() => setSelectedStaff(s)} className="p-2 bg-blue-100 text-blue-600 rounded-lg hover:bg-blue-200 transition" title="Print ID Card">
+                          <FaIdCard />
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))}
@@ -105,6 +114,8 @@ const StaffPanelData = () => {
           </div>
         )}
       </div>
+
+      {selectedStaff && <IDCardPrint roleType="staff" staffId={selectedStaff._id} staffData={selectedStaff} onClose={() => setSelectedStaff(null)} />}
     </div>
   );
 };

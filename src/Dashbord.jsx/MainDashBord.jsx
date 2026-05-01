@@ -2,7 +2,8 @@ import React, { useEffect, useState } from "react";
 import { NavLink, Outlet, useNavigate } from "react-router-dom";
 import {
   FaHome, FaSignOutAlt, FaUserTie, FaChalkboardTeacher,
-  FaMoneyBillWave, FaBus, FaBook, FaUsers, FaChartBar, FaKey, FaBuilding, FaBed, FaUser
+  FaMoneyBillWave, FaBus, FaBook, FaUsers, FaChartBar, FaKey, FaBuilding, FaBed, FaUser, FaCog, FaChevronDown,
+  FaPalette, FaClipboardList,FaGraduationCap, FaFileAlt, FaIdCard, FaReceipt, FaBook as FaMarksheet
 } from "react-icons/fa";
 import { GiHamburgerMenu } from "react-icons/gi";
 import { MdClose } from "react-icons/md";
@@ -18,7 +19,20 @@ const PANEL_NAV_MAP = {
   library:   { to: "/dashbord/library",   label: "Library",    icon: FaBook },
   warden:    { to: "/dashbord/hostel",    label: "Hostel",     icon: FaBed },
   parent:    { to: "/dashbord/parents",   label: "Students",   icon: FaUsers },
-};
+};    
+
+// School Settings submenu items
+const SCHOOL_SETTINGS_SUBMENU = [
+  { id: 'branding', label: 'Branding', icon: FaPalette },
+//   { id: 'attendance', label: 'Attendance', icon: FaClipboardList },
+//   { id: 'admission', label: 'Admission', icon: FaFileAlt },
+  { id: 'idCard', label: 'ID Card Design', icon: FaIdCard },
+//   { id: 'feeSlip', label: 'Fee Slip Design', icon: FaReceipt },
+  { id: 'marksheet', label: 'Marksheet Design', icon: FaMarksheet },
+  { id: 'examType', label: 'Exam Type', icon: FaClipboardList },
+  { id: 'transport', label: 'Transport', icon: FaBus },
+  { id: 'generateIdCards', label: 'Generate ID Cards', icon: FaIdCard },
+];
 
 // Always visible items (not panel-based)
 const FIXED_NAV = [
@@ -31,11 +45,25 @@ const FIXED_NAV = [
 export default function MainDashBord() {
   const [open, setOpen] = useState(true);
   const [isMobile, setIsMobile] = useState(false);
+  const [settingsDropdownOpen, setSettingsDropdownOpen] = useState(false);
+
   const navigate = useNavigate();
   const [admin, setAdmin] = useState(() => JSON.parse(localStorage.getItem("admin") || "{}"));
   const allowedPanels = admin?.allowedPanels || [];
 
   const BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5002';
+
+  // Fetch branches on mount
+  useEffect(() => {
+    api.get('/api/branch/all?limit=100')
+      .then(res => {
+        if (res.data.branches?.length > 0) {
+          const firstBranch = res.data.branches[0]._id;
+          localStorage.setItem('selectedBranch', firstBranch);
+        }
+      })
+      .catch(() => {});
+  }, []);
 
   // Fetch fresh allowedPanels on mount (in case plan was updated)
   useEffect(() => {
@@ -91,6 +119,15 @@ export default function MainDashBord() {
       : "text-slate-300 hover:text-white hover:bg-white/10"
     }`;
 
+  const handleSettingsClick = (sectionId) => {
+    if (sectionId === 'generateIdCards') {
+      navigate('/dashbord/generate-id-cards');
+    } else {
+      navigate(`/dashbord/school-settings/${sectionId}`);
+    }
+    closeSidebar();
+  };
+
   return (
     <div className="flex h-screen bg-slate-100 overflow-hidden">
       {open && isMobile && (
@@ -112,6 +149,8 @@ export default function MainDashBord() {
           {!open && !isMobile && <span className="font-bold text-sm">AP</span>}
         </div>
 
+
+
         <nav className={`flex-1 overflow-y-auto mt-2 space-y-1 ${open ? "p-3" : "p-2"}`}>
           {NAV_ITEMS.map(({ to, label, icon: Icon, end }) => (
             <NavLink key={to} to={to} end={end} className={menuClass} onClick={closeSidebar}>
@@ -125,6 +164,52 @@ export default function MainDashBord() {
               )}
             </NavLink>
           ))}
+
+          {/* School Settings Dropdown */}
+          <div className="relative settings-dropdown">
+            <button
+              onClick={() => setSettingsDropdownOpen(!settingsDropdownOpen)}
+              className={`flex w-full items-center gap-3 rounded-xl transition-all duration-200 font-medium group relative
+              ${open ? "px-4 py-2.5" : "justify-center p-2.5"}
+              ${settingsDropdownOpen
+                ? "bg-gradient-to-r from-indigo-500 to-purple-600 text-white shadow-md"
+                : "text-slate-300 hover:text-white hover:bg-white/10"
+              }`}
+            >
+              <FaCog size={17} className="flex-shrink-0" />
+              {open && (
+                <>
+                  <span className="text-sm flex-1 text-left">School Settings</span>
+                  <FaChevronDown size={12} className={`transition-transform ${settingsDropdownOpen ? 'rotate-180' : ''}`} />
+                </>
+              )}
+              {!open && (
+                <div className="absolute left-full ml-2 px-2 py-1 bg-slate-700 text-white text-xs rounded-lg
+                  opacity-0 group-hover:opacity-100 pointer-events-none whitespace-nowrap z-50 transition-opacity">
+                  Settings
+                </div>
+              )}
+            </button>
+
+            {/* Dropdown Menu */}
+            {settingsDropdownOpen && open && (
+              <div className="ml-4 mt-2 space-y-1 bg-slate-700/30 rounded-lg p-2">
+                {SCHOOL_SETTINGS_SUBMENU.map(item => {
+                  const SubIcon = item.icon;
+                  return (
+                    <button
+                      key={item.id}
+                      onClick={() => handleSettingsClick(item.id)}
+                      className="flex w-full items-center gap-2 px-3 py-2 text-xs text-slate-300 hover:text-white hover:bg-slate-600 rounded-lg transition-colors"
+                    >
+                      <SubIcon size={14} />
+                      <span>{item.label}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            )}
+          </div>
         </nav>
 
         <div className={`border-t border-white/10 flex-shrink-0 ${open ? "p-3" : "p-2"}`}>

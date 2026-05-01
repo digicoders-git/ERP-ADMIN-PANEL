@@ -1,8 +1,10 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { FaChalkboardTeacher, FaSearch, FaSpinner } from 'react-icons/fa';
+import { useOutletContext } from 'react-router-dom';
 import api from '../api';
 
 const TeacherPanelData = () => {
+  const { selectedBranch } = useOutletContext() || {};
   const [data, setData] = useState([]);
   const [stats, setStats] = useState({});
   const [loading, setLoading] = useState(true);
@@ -11,7 +13,8 @@ const TeacherPanelData = () => {
   const fetchData = useCallback(async () => {
     setLoading(true);
     try {
-      const res = await api.get(`/api/school-admin/teachers?search=${search}`);
+      const branchParam = selectedBranch && selectedBranch !== 'all' ? `&branchId=${selectedBranch}` : '';
+      const res = await api.get(`/api/school-admin/teachers?search=${search}${branchParam}`);
       setData(res.data.data || []);
       setStats(res.data.stats || {});
     } catch (err) {
@@ -19,7 +22,11 @@ const TeacherPanelData = () => {
     } finally {
       setLoading(false);
     }
-  }, [search]);
+  }, [search, selectedBranch]);
+
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
 
   useEffect(() => {
     fetchData();
@@ -28,7 +35,7 @@ const TeacherPanelData = () => {
   return (
     <div className="space-y-6">
       <div className="flex items-center gap-3">
-        <FaChalkboardTeacher className="text-3xl text-red-600" />
+        <FaChalkboardTeacher   className="text-3xl text-red-600" />
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Teacher Management</h1>
           <p className="text-gray-500 text-sm">Faculty information and assignments</p>
