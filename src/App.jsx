@@ -16,6 +16,7 @@ import TransportPanelData from "./Dashbord.jsx/TransportPanelData";
 import LibraryPanelData from "./Dashbord.jsx/LibraryPanelData";
 import LibrarianPanelData from "./Dashbord.jsx/LibrarianPanelData";
 import HostelPanelData from "./Dashbord.jsx/HostelPanelData";
+import HostelDetails from "./Dashbord.jsx/HostelDetails";
 import ParentPanelData from "./Dashbord.jsx/ParentPanelData";
 import AdminProfile from "./Dashbord.jsx/AdminProfile";
 import IDCardGeneration from "./Dashbord.jsx/IDCardGeneration";
@@ -65,6 +66,7 @@ export default function App() {
 
           {/* warden/hostel panel */}
           <Route path="hostel" element={<PanelRoute panel="warden" element={<HostelPanelData />} />} />
+          <Route path="hostel-details/:hostelId" element={<PanelRoute panel="warden" element={<HostelDetails />} />} />
 
           {/* parent/student panel */}
           <Route path="parents" element={<PanelRoute panel="parent" element={<ParentPanelData />} />} />
