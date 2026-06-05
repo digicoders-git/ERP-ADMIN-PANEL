@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL,
+  baseURL: import.meta.env.VITE_API_BASE_URL || 'https://erp-backend-0ab5.onrender.com',
 });
 
 api.interceptors.request.use((config) => {
