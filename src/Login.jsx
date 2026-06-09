@@ -51,8 +51,8 @@ function SchoolAdminLogin() {
         <div className="bg-white/10 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/20 p-8 animate-fadeInUp">
           {/* Header */}
           <div className="text-center mb-8">
-            <div className="mx-auto w-16 h-16 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-2xl flex items-center justify-center mb-4 shadow-lg">
-              <span className="text-white text-2xl font-bold">SC</span>
+            <div className="mx-auto w-16 h-16 rounded-2xl flex items-center justify-center mb-4 shadow-lg overflow-hidden">
+              <img src="/logo.jpeg" alt="Logo" className="w-full h-full object-cover" />
             </div>
             <h1 className="text-3xl font-bold text-white mb-2">
               School Admin Login
